@@ -1,0 +1,19 @@
+{
+  "name": "job-notifier",
+  "version": "1.0.0",
+  "description": "Scrape for new jobs and notify when new ones are found",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "puppeteer": "^22.15.0"
+  }
+}
