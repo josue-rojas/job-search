@@ -4,8 +4,7 @@ import { SourceFactory, SourceType } from "./sources/SourceFactory";
 const jobRepo = new Jobs();
 
 async function main() {
-  const currentTime = new Date().toISOString();
-  console.log('current time', currentTime)
+  const latestDateJobFound = (await jobRepo.getLatestJobDate()).toISOString();
   const type = SourceType.LinkedIn;
   const source = SourceFactory.createSource(type);
 
@@ -21,10 +20,10 @@ async function main() {
     }
   }
 
-  const newData = await jobRepo.getLatestJobs(currentTime);
+  const newData = await jobRepo.getLatestJobs(latestDateJobFound);
 
-  console.log(currentTime);
-  console.log(newData.map((n) => [n.title, n.company, n.link] ));
+  console.log('Last Job Time:', latestDateJobFound);
+  console.log(newData.map((n) => [n.title, n.company, n.link, n.datePosted] ));
 
 
   return newData

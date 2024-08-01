@@ -34,6 +34,10 @@ export class PuppeteerFetch {
       }
     });
 
+    this.page
+    .on('console', message =>
+      console.log(`${message.type()} ${message.text()}`))
+
     let tryNum = 0;
     // this is where we fetch and retry if it fails to fetch
     while (tryNum < this.retry_attempts && responseStatus != 200) {
@@ -87,7 +91,7 @@ export class PuppeteerFetch {
   async clickShowMoreButton(buttonSelector: string, clickDelay: number = this.defaultClickDelay) {
     try {
       const button = await this.page?.waitForSelector(buttonSelector, { visible: true });
-      console.log('clicking', button)
+      console.log('clicking')
       await button?.click();
       await setTimeout(clickDelay); 
     } catch (error) {
