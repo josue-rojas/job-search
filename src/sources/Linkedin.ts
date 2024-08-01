@@ -1,7 +1,7 @@
 import { SourceBase } from "./SourceBase";
-import puppeteer from 'puppeteer';
 import { setTimeout } from "node:timers/promises";
 const fs = require('fs');
+import { PuppeteerFetch } from "../utils/puppeteerFetch";
 
 
 
@@ -9,76 +9,41 @@ interface LinkedInDataType {
   link: string;
   title: string;
   datePosted: string;
+  company: string;
 }
 
 export class LinkedIn extends SourceBase<LinkedInDataType[]> {
+  readonly clickDelay = 2000;
   name = 'LinkedIn';
-  url = 'https://www.linkedin.com/jobs/search/?f_E=2%2C3%2C4&f_TPR=r86400&geoId=105080838&keywords=software%2Bengineer&location=New%2BYork%2C%2BUnited%2BStates&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=false&position=1&pageNum=0&original_referer='
+  // url = 'https://www.linkedin.com/jobs/search/?f_E=2%2C3%2C4&f_TPR=r86400&geoId=105080838&keywords=software%2Bengineer&location=New%2BYork%2C%2BUnited%2BStates&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=false&position=1&pageNum=0&original_referer='
+  
+  // url = 'https://www.linkedin.com/jobs/search?keywords=Typescript&location=New%20York&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&original_referer=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fsearch%3Fkeywords%3DTypescript%26location%3DNew%2520York%26geoId%3D105080838%26f_TPR%3D%26f_E%3D2%252C3%252C4%26position%3D1%26pageNum%3D0&position=1&pageNum=0'
+  url = 'https://www.linkedin.com/jobs/search?keywords=JavaScript&location=New%20York&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&position=1&pageNum=0'
 
   async fetch() {
-    // return [];
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    let responseStatus: number = 0;
-    page.on('response', response => {
-      if (response.url() === this.url) {
-        responseStatus = response.status();
-      }
-    });
+    const puppeteerFetch = (await new PuppeteerFetch().goto(this.url));
 
-    await page.goto(this.url);
-
-    // Check if the page loaded successfully
-    if (responseStatus !== 200) {
-      console.error(`Failed to load page, status code: ${responseStatus}`);
-      await browser.close();
+    if (!puppeteerFetch.page) {
       return [];
     }
 
     const showMoreButtonSelector = 'button.infinite-scroller__show-more-button.infinite-scroller__show-more-button--visible';
 
-    // Function to scroll to the bottom of the page
-    async function scrollToBottom() {
-      let previousHeight;
-      let currentHeight = await page.evaluate('document.body.scrollHeight') as number;
-
-      do {
-        console.log('---scrolling---', previousHeight)
-        previousHeight = currentHeight;
-        await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
-        await setTimeout(5000); // Adjust the timeout based on your observation of how long it takes for data to load
-        currentHeight = await page.evaluate('document.body.scrollHeight') as number;
-      } while (currentHeight > previousHeight);
-    }
-
-    // Function to click the button and wait for more data to load
-    async function clickShowMoreButton() {
-      try {
-        const button = await page.waitForSelector(showMoreButtonSelector, { visible: true });
-        console.log('---clicking button---', button)
-        await button?.click();
-        await setTimeout(2000); // Adjust the timeout based on your observation of how long it takes for data to load
-      } catch (error) {
-        console.log('Button not found or no longer visible:', error);
-        return false;
-      }
-      return true;
-    }
-
     let buttonExists = true;
     while (buttonExists) {
-      await scrollToBottom();
-      buttonExists = await clickShowMoreButton();
+      await puppeteerFetch.scrollToBottom();
+      buttonExists = await puppeteerFetch.clickShowMoreButton(showMoreButtonSelector);
     }
 
-    const html = await page.content();
+    const html = await puppeteerFetch.content();
     fs.writeFileSync('./page.html', html);
   
   
-    const extractedData = await page.$$eval('.jobs-search__results-list li .base-card', (elements) => {
+    const extractedData = await puppeteerFetch.page?.$$eval('.jobs-search__results-list li .base-card', (elements) => {
       return elements.map((el) => {
         const link = el.querySelector('.base-card__full-link')?.['href'] as string;
         const title = el.querySelector('.base-search-card__title')?.innerHTML as string;
+        const company = el.querySelector('.base-search-card__subtitle a')?.innerHTML as string;
         // const datePosted = el.querySelector('time')?.getAttribute('datetime') as string;
         // TODO: the above time is not accurate since they round to the day. we might have to do some maths later
         const datePosted = new Date().toISOString();
@@ -86,13 +51,12 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
         return {
           link,
           title,
-          datePosted
-      };
+          datePosted,
+          company
+        };
       })
     })
-    await browser.close();
-
-    // console.log('-0---', JSON.stringify(extractedData))
+    await puppeteerFetch.close();
 
     return extractedData
   }
@@ -106,13 +70,16 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
       //   title: '',
       //   company: '',
       // }],
-      data: data.map(l => ({
-        link: l.link.split('?')[0],
+      data: data.map(l => {
+        const jobPath = l.link.split('?')[0].split('-');
+        const jobId = jobPath[jobPath.length - 1];
+        return ({
+        link: `https://www.linkedin.com/jobs/view/${jobId}`,
         datePosted: l.datePosted,
         description: '',
         title: l.title.trim(),
-        company: '',
-      })),
+        company: l.company.trim(),
+      })}),
       source: this.name,
     }
   }

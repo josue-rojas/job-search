@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import { JobInterface, SourceData } from '../sources/SourceBase';
+import { VERBOSE } from '../constants/config';
 
 type JobRow = {
   id: number;
@@ -15,7 +16,10 @@ export class Jobs {
         console.error('Error opening database:', err.message);
         return;
       }
-      // console.log('Connected to the SQLite database.');
+
+      // if (VERBOSE) {
+      //   console.log('Connected to the SQLite database.');
+      // }
     });
   }
 
