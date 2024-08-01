@@ -1,6 +1,8 @@
 import { SourceBase } from "./SourceBase";
 import puppeteer from 'puppeteer';
-import {setTimeout} from "node:timers/promises";
+import { setTimeout } from "node:timers/promises";
+const fs = require('fs');
+
 
 
 interface LinkedInDataType {
@@ -14,10 +16,24 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   url = 'https://www.linkedin.com/jobs/search/?f_E=2%2C3%2C4&f_TPR=r86400&geoId=105080838&keywords=software%2Bengineer&location=New%2BYork%2C%2BUnited%2BStates&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=false&position=1&pageNum=0&original_referer='
 
   async fetch() {
+    // return [];
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    let responseStatus: number = 0;
+    page.on('response', response => {
+      if (response.url() === this.url) {
+        responseStatus = response.status();
+      }
+    });
+
     await page.goto(this.url);
-    const button = page.locator('button .infinite-scroller__show-more-button.infinite-scroller__show-more-button--visible')
+
+    // Check if the page loaded successfully
+    if (responseStatus !== 200) {
+      console.error(`Failed to load page, status code: ${responseStatus}`);
+      await browser.close();
+      return [];
+    }
 
     const showMoreButtonSelector = 'button.infinite-scroller__show-more-button.infinite-scroller__show-more-button--visible';
 
@@ -30,7 +46,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
         console.log('---scrolling---', previousHeight)
         previousHeight = currentHeight;
         await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
-        await setTimeout(2000); // Adjust the timeout based on your observation of how long it takes for data to load
+        await setTimeout(5000); // Adjust the timeout based on your observation of how long it takes for data to load
         currentHeight = await page.evaluate('document.body.scrollHeight') as number;
       } while (currentHeight > previousHeight);
     }
@@ -38,9 +54,9 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     // Function to click the button and wait for more data to load
     async function clickShowMoreButton() {
       try {
-        console.log('---clicking button---')
-        // await page.waitForSelector(showMoreButtonSelector, { visible: true });
-        await page.locator(showMoreButtonSelector).click();
+        const button = await page.waitForSelector(showMoreButtonSelector, { visible: true });
+        console.log('---clicking button---', button)
+        await button?.click();
         await setTimeout(2000); // Adjust the timeout based on your observation of how long it takes for data to load
       } catch (error) {
         console.log('Button not found or no longer visible:', error);
@@ -54,13 +70,18 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
       await scrollToBottom();
       buttonExists = await clickShowMoreButton();
     }
+
+    const html = await page.content();
+    fs.writeFileSync('./page.html', html);
   
-    console.log('button', button)
+  
     const extractedData = await page.$$eval('.jobs-search__results-list li .base-card', (elements) => {
       return elements.map((el) => {
         const link = el.querySelector('.base-card__full-link')?.['href'] as string;
         const title = el.querySelector('.base-search-card__title')?.innerHTML as string;
-        const datePosted = el.querySelector('time')?.getAttribute('datetime') as string;
+        // const datePosted = el.querySelector('time')?.getAttribute('datetime') as string;
+        // TODO: the above time is not accurate since they round to the day. we might have to do some maths later
+        const datePosted = new Date().toISOString();
 
         return {
           link,
@@ -78,11 +99,19 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
 
   mapData(data: LinkedInDataType[]) {
     return { 
+      // data: [{
+      //   link: 'unkonwn',
+      //   datePosted: new Date().toISOString(),
+      //   description: '',
+      //   title: '',
+      //   company: '',
+      // }],
       data: data.map(l => ({
         link: l.link.split('?')[0],
         datePosted: l.datePosted,
         description: '',
-        title: l.title.trim()
+        title: l.title.trim(),
+        company: '',
       })),
       source: this.name,
     }

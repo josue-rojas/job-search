@@ -1,10 +1,12 @@
+export interface JobInterface {
+  link: string;
+  datePosted: string;
+  description: string;
+  title: string;
+  company: string;
+}
 export interface SourceData {
-  data: {
-    link: string;
-    datePosted: string;
-    description?: string;
-    title: string;
-  }[];
+  data: JobInterface[];
   source: string;
 }
 
