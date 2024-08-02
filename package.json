@@ -2,20 +2,24 @@
   "name": "job-notifier",
   "version": "1.0.0",
   "description": "Scrape for new jobs and notify when new ones are found",
-  "main": "src/index.ts",
+  "main": "server/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx ts-node src/index.ts",
-    "start": "node -r ts-node/register  src/index.ts"
+    "dev": "npx ts-node server/scrape.ts",
+    "scrape": "npx ts-node server/scrape.ts",
+    "start:dev": "node -r ts-node/register  server/index.ts",
+    "start": "ts-node server/index.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^22.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "express": "^4.19.2",
     "puppeteer": "^22.15.0",
     "sqlite3": "^5.1.7"
   }

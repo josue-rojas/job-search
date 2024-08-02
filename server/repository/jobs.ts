@@ -7,7 +7,7 @@ type JobRow = {
   id: number;
 } & JobInterface;
 
-export class Jobs {
+export class JobsRepository {
   readonly dbPath = path.join(__dirname, '../jobs.db');
 
   private getDB() {
@@ -39,6 +39,35 @@ export class Jobs {
       });
   
     })
+  }
+
+  async getJobs(limit: number, offset: number) {
+    const query = `
+      SELECT * FROM jobs
+      ORDER BY datePosted DESC
+      LIMIT ? OFFSET ?;
+    `;
+    const countQuery = `SELECT COUNT(*) as count FROM jobs;`;
+
+    return new Promise((resolve, reject) => {
+      const db = this.getDB();
+      db.get(countQuery, [], (err, countResult) => {
+        if (err) {
+          return reject(err);
+        }
+    
+        db.all(query, [limit, offset], (err, rows) => {
+          if (err) {
+            return reject(err);
+          }
+
+          const count = (countResult as any)['count'] || 0;
+
+          return resolve({ rows, count })
+    
+        });
+      });
+    });
   }
 
   async insertJob(job: JobInterface, siteSource: string): Promise<void> {
