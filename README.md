@@ -1,5 +1,5 @@
-# job-notifier
-Scrape for new jobs and notify when new ones are found
+# job-searches
+Scrape for new jobs and display them on a react web page
 
 # Requirements
 - [sqlite ](https://www.sqlite.org)
