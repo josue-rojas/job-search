@@ -1,7 +1,7 @@
-import { Jobs } from "./repository/jobs";
+import { JobsRepository } from "./repository/jobs";
 import { SourceFactory, SourceType, SourceFactoryOptions } from "./sources/SourceFactory";
 
-const jobRepo = new Jobs();
+const jobRepo = new JobsRepository();
 
 async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions) {
   const source = SourceFactory.createSource(sourceType, sourceOptions);
