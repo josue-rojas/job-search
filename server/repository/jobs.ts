@@ -42,8 +42,12 @@ export class JobsRepository {
   }
 
   async getJobs(limit: number, offset: number) {
-    const query = `SELECT * FROM jobs LIMIT ? OFFSET ?`;
-    const countQuery = `SELECT COUNT(*) as count FROM jobs`;
+    const query = `
+      SELECT * FROM jobs
+      ORDER BY datePosted DESC
+      LIMIT ? OFFSET ?;
+    `;
+    const countQuery = `SELECT COUNT(*) as count FROM jobs;`;
 
     return new Promise((resolve, reject) => {
       const db = this.getDB();
