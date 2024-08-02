@@ -43,21 +43,34 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
 
         const title = el.querySelector('.base-search-card__title')?.innerHTML as string;
         const company = el.querySelector('.base-search-card__subtitle a')?.innerHTML as string;
-        const datePostedHtml = el.querySelector('time')?.getAttribute('datetime') as string;
+        // const datePostedHtml = el.querySelector('time')?.getAttribute('datetime') as string;
         const datePostedPassed = (el.querySelector('time')?.innerHTML as string).trim().split(' ');
         let subtractBy: {[k: string]: number} = {
           hours: 0,
+          hour: 0,
           minutes: 0,
+          minute: 0,
           seconds: 0,
+          days: 0,
+          day: 0,
         }
 
         
         // TODO: there is an "hour" for single hour that we  dont account for
         subtractBy[datePostedPassed[1]] = parseInt(datePostedPassed[0]) || 0;
-        const datePosted = new Date(datePostedHtml);
+        // TODO: this is hard coded as now since we are getting the latest job. it does not actually reflect the actual time
+        // new jobs are posted with todays date minus the time 
+        const datePosted = new Date();
+        console.log(`datePosted - ${datePosted} - passed - ${datePostedPassed}`)
         datePosted.setHours(datePosted.getHours() - (subtractBy.hours));
+        datePosted.setHours(datePosted.getHours() - (subtractBy.hour));
         datePosted.setMinutes(datePosted.getMinutes() - (subtractBy.minutes));
+        datePosted.setMinutes(datePosted.getMinutes() - (subtractBy.minute));
         datePosted.setSeconds(datePosted.getSeconds() - (subtractBy.seconds));
+        datePosted.setHours(datePosted.getHours() - (subtractBy.days * 24));
+        datePosted.setHours(datePosted.getHours() - (subtractBy.day * 24));
+        console.log(`datePosted after - ${datePosted}`)
+        console.log(' ')
 
         return {
           link,
@@ -82,19 +95,20 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
       //   title: '',
       //   company: '',
       // }],
-      data: data.map(l => {
+      data: data ? data.map(l => {
         const jobPath = l?.link?.split('?')[0].split('-');
         // console.log(l.link, jobPath)
         const jobId = jobPath[jobPath.length - 1];
         // console.log('`https://www.linkedin.com/jobs/view/${jobId}`', `https://www.linkedin.com/jobs/view/${jobId}`)
         return ({
-        link: `https://www.linkedin.com/jobs/view/${jobId}`,
-        datePosted: l.datePosted,
-        description: '',
-        title: l.title.trim(),
-        company: l.company.trim(),
-      })}),
-      source: this.name,
+          link: `https://www.linkedin.com/jobs/view/${jobId}`,
+          // link: l.link,
+          datePosted: l.datePosted,
+          description: '',
+          title: l.title.trim(),
+          company: l.company.trim(),
+      })}) : [],
+      siteSource: this.name + this.url,
     }
   }
 }

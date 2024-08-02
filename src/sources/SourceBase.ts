@@ -9,7 +9,7 @@ export interface JobInterface {
 }
 export interface SourceData {
   data: JobInterface[];
-  source: string;
+  siteSource: string;
 }
 
 export abstract class SourceBase<FetchData = unknown> {

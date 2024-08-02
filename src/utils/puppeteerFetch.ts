@@ -1,11 +1,13 @@
 import puppeteer, { Browser, Page } from "puppeteer";
 import { setTimeout } from "node:timers/promises";
+import { VERBOSE } from "../constants/config";
 
 export class PuppeteerFetch {
   readonly retry_attempts = 3;
   readonly retry_delay = 3000;
   readonly defaultScrollDelay = 5000;
   readonly defaultClickDelay = 2000;
+  readonly logBrowser = false;
 
   browser: Browser | undefined;
   page: Page | undefined;
@@ -34,7 +36,7 @@ export class PuppeteerFetch {
       }
     });
 
-    this.page
+    this.logBrowser && this.page
     .on('console', message =>
       console.log(`${message.type()} ${message.text()}`))
 

@@ -3,17 +3,21 @@ import { SourceFactory, SourceType } from "./sources/SourceFactory";
 
 const jobRepo = new Jobs();
 
+const SOURCE_TYPE = SourceType.LinkedIn;
+const DEFAULT_DATE_SEARCH = '';
+
 async function main() {
-  const latestDateJobFound = (await jobRepo.getLatestJobDate()).toISOString();
-  const type = SourceType.LinkedIn;
+  const type = SOURCE_TYPE;
   const source = SourceFactory.createSource(type);
 
   const fetchData = await source.fetch();
   const mappedData = source.mapData(fetchData);
 
+  const latestDateJobFound = (await jobRepo.getLatestJobDate(mappedData.siteSource)).toISOString();
+
   for await (let newJob of mappedData.data) {
     try {
-      await jobRepo.insertJob(newJob);
+      await jobRepo.insertJob(newJob, mappedData.siteSource);
     } catch (err) {
       console.error('erorr with', newJob.link);
       console.error(err);

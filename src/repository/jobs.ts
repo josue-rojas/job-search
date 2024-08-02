@@ -45,13 +45,13 @@ export class Jobs {
     })
   }
 
-  async insertJob(job: JobInterface): Promise<void> {
+  async insertJob(job: JobInterface, siteSource: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
   
-      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company) VALUES (?, ?, ?, ?, ?)');
+      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource) VALUES (?, ?, ?, ?, ?, ?)');
 
-      insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, (err: unknown) => {
+      insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, siteSource, (err: unknown) => {
         if (err) {
           reject(err);
         } else {
@@ -62,26 +62,31 @@ export class Jobs {
     })
   }
 
-  async getLatestJobDate(): Promise<Date> {
+  async getLatestJobDate(source: string): Promise<Date> {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
       const query = `
         SELECT datePosted
         FROM jobs
+        WHERE siteSource = ?
         ORDER BY datePosted DESC
         LIMIT 1;
       `;
-  
-      db.all(query, (err, row) => {
+
+      db.all(query, [source], (err, row) => {
         db.close();
 
         if (err) {
           return reject(err);
         } else {
-          const latestDate = (row[0] as JobRow).datePosted
-          return resolve(new Date(latestDate))
+          if (row[0]) {            
+            const latestDate = (row[0] as JobRow).datePosted
+            return resolve(new Date(latestDate))
+          }
         }
       });
+
+      return resolve(new Date());
   
     })
 
@@ -90,5 +95,5 @@ export class Jobs {
 
 // (new Jobs()).getLatestJobs((new Date()).toDateString())
 // (new Jobs()).getLatestJobs('2024-08-01T16:37:46.922Z')
-(new Jobs()).getLatestJobDate()
+// (new Jobs()).getLatestJobDate('')
 
