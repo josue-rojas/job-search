@@ -1,6 +1,8 @@
 # job-searches
 Scrape for new jobs and display them on a react web page
 
+The idea is that some job boards (linkedin) are filled with "promoted" jobs when searching for recently posted jobs. This tool just helps find those new jobs faster and more automize.
+
 # Requirements
 - [sqlite ](https://www.sqlite.org)
 - node 21 (`nvm use` if nvm available)
