@@ -12,12 +12,14 @@ async function main() {
 
   const fetchData = await source.fetch();
   const mappedData = source.mapData(fetchData);
+  const sourceName = source.getSourceName();
 
-  const latestDateJobFound = (await jobRepo.getLatestJobDate(mappedData.siteSource)).toISOString();
+  const latestDateJobFound = (await jobRepo.getLatestJobDate(sourceName)).toISOString();
 
+  // insert all jobs found
   for await (let newJob of mappedData.data) {
     try {
-      await jobRepo.insertJob(newJob, mappedData.siteSource);
+      await jobRepo.insertJob(newJob, sourceName);
     } catch (err) {
       console.error('erorr with', newJob.link);
       console.error(err);

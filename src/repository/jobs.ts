@@ -79,14 +79,16 @@ export class Jobs {
         if (err) {
           return reject(err);
         } else {
-          if (row[0]) {            
-            const latestDate = (row[0] as JobRow).datePosted
-            return resolve(new Date(latestDate))
+          if (row[0]) {
+            const latestDate = (row[0] as JobRow).datePosted;
+
+            return resolve(new Date(latestDate));
+          } else {
+            return resolve(new Date());
           }
         }
       });
 
-      return resolve(new Date());
   
     })
 
@@ -95,5 +97,5 @@ export class Jobs {
 
 // (new Jobs()).getLatestJobs((new Date()).toDateString())
 // (new Jobs()).getLatestJobs('2024-08-01T16:37:46.922Z')
-// (new Jobs()).getLatestJobDate('')
+// (new Jobs()).getLatestJobDate('LinkedInJavaScript').then((a) => console.log(a))
 
