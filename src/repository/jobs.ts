@@ -16,10 +16,6 @@ export class Jobs {
         console.error('Error opening database:', err.message);
         return;
       }
-
-      // if (VERBOSE) {
-      //   console.log('Connected to the SQLite database.');
-      // }
     });
   }
 
@@ -93,6 +89,8 @@ export class Jobs {
     })
 
   }
+
+  // TODO: bulk insert jobs
 }
 
 // (new Jobs()).getLatestJobs((new Date()).toDateString())

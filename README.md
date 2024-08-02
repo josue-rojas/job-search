@@ -2,7 +2,7 @@
 Scrape for new jobs and notify when new ones are found
 
 # Requirements
-- [sqlite ](https://www.sqlite.org)/
+- [sqlite ](https://www.sqlite.org)
 - node 21 (`nvm use` if nvm available)
 
 
@@ -16,3 +16,5 @@ Scrape for new jobs and notify when new ones are found
 - how do we get data? design of how we get the latest data;
 - the query to get the latest jobs should be configurable
 - create filters for jobs to remove jobs that might not be relevant or companies that arent relevant to you
+- save puppeteer files only if debug is on?!?! - format should be source-date, files should be ignore for git
+- add ability to have attempts when scrolling or clicking button makes a request and returns a not 200

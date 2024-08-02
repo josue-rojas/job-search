@@ -1,3 +1,4 @@
+// Not used anymore. i used this to seed some initial data to test out the db
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
