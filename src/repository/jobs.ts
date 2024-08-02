@@ -89,8 +89,6 @@ export class Jobs {
     })
 
   }
-
-  // TODO: bulk insert jobs
 }
 
 // (new Jobs()).getLatestJobs((new Date()).toDateString())

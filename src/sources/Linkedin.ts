@@ -25,7 +25,6 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     const keywordEncoded = encodeURIComponent(keyword);
     const locationEncoded = encodeURIComponent(location);
 
-    // TODO: figure out what the parameters do in terms of filters
     this.url = `https://www.linkedin.com/jobs/search?keywords=${keywordEncoded}&location=${locationEncoded}&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&position=1&pageNum=0`
   }
 
