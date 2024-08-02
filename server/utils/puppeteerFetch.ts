@@ -31,6 +31,7 @@ export class PuppeteerFetch {
 
     this.page.on('request', (r) => {
       const responseUrl = r.url();
+      // TODO: make these logs more configurable 
       if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
         // console.log('request-', responseUrl);
       }
