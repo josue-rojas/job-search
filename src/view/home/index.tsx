@@ -47,6 +47,7 @@ export function HomeView() {
       {jobListings.map((job) => (
         <JobBox
           key={job.link}
+          siteSource={job.siteSource}
           datePosted={job.datePosted}
           company={job.company}
           title={job.title}

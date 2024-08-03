@@ -5,11 +5,13 @@ interface JobBoxProps {
   company: string;
   datePosted: string;
   link: string;
+  siteSource: string
 }
 export function JobBox(props: JobBoxProps) {
-  return <a className={styles.jobBox} href={props.link}>
+  return <a className={styles.jobBox} href={props.link} target='blank'>
     <p>{props.title}</p>
     <p>{props.company}</p>
-    <time>{new Date(props.datePosted).toLocaleDateString()}</time>
+    <p>{props.siteSource}</p>
+    <time>{new Date(props.datePosted).toLocaleString()}</time>
   </a>
 }
