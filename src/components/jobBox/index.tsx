@@ -8,10 +8,14 @@ interface JobBoxProps {
   siteSource: string
 }
 export function JobBox(props: JobBoxProps) {
-  return <a className={styles.jobBox} href={props.link} target='blank'>
-    <p>{props.title}</p>
-    <p>{props.company}</p>
-    <p>{props.siteSource}</p>
-    <time>{new Date(props.datePosted).toLocaleString()}</time>
-  </a>
+  return (
+    <a className={styles.jobBox} href={props.link} target='_blank' rel='noopener noreferrer'>
+      <div className={styles.header}>
+        <p className={styles.title}>{props.title}</p>
+        <p className={styles.company}>{props.company}</p>
+        <p className={styles.siteSource}>{props.siteSource}</p>
+      </div>
+      <time className={styles.date}>{new Date(props.datePosted).toLocaleString()}</time>
+    </a>
+  );
 }
