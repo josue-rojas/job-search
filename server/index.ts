@@ -1,13 +1,16 @@
 import express from 'express';
 import { JobsRepository } from './repository/jobs';
 import { JobService } from './service/jobService';
+import cors from 'cors';
 
 const app = express();
 // TODO: this should be an env variable
-const port = 3000;
+const port = 3002;
 
 const jobRepo = new JobsRepository();
 const jobService = new JobService(jobRepo);
+
+app.use(cors());
 
 // API endpoint to query the database with pagination
 app.get('/api/getJobs', async (req, res) => {
@@ -29,8 +32,6 @@ app.get('/api/getJobs', async (req, res) => {
 
     return res.status(500).json({e})
   }
-
-
 });
 
 app.listen(port, () => {
