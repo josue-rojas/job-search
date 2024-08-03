@@ -29,8 +29,6 @@ app.get('/api/getJobs', async (req, res) => {
 
     return res.status(500).json({e})
   }
-
-
 });
 
 app.listen(port, () => {
