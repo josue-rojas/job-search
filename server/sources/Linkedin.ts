@@ -55,7 +55,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     
     const extractedData = await puppeteerFetch.page?.$$eval('.jobs-search__results-list li .base-card', (elements) => {
       return elements.map((el) => {
-        const link = el.querySelector('.base-card__full-link')?.['href'] as string;
+        const link = (el.querySelector('.base-card__full-link') as any )?.['href'] as string;
 
         const title = el.querySelector('.base-search-card__title')?.innerHTML as string;
         const company = el.querySelector('.base-search-card__subtitle a')?.innerHTML as string;

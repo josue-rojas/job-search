@@ -1,0 +1,12 @@
+.home {
+  display: grid;
+  padding: 10px;
+}
+
+@media (min-width: 768px) {
+  .home {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 10px;
+    column-gap: 10px;
+  }
+}

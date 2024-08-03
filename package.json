@@ -9,7 +9,7 @@
     "start:dev": "node -r ts-node/register  server/index.ts",
     "start:client": "react-scripts start",
     "start:server": "ts-node server/index.ts",
-    "start": "concurrently --kill-others-on-fail \"npm start:server\" \"npm start:client\""
+    "start": "concurrently --kill-others-on-fail \"npm run start:server\" \"npm run start:client\""
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.1.0",
@@ -28,6 +29,7 @@
   },
   "dependencies": {
     "classnames": "^2.5.1",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "puppeteer": "^22.15.0",
     "react": "^18.3.1",
