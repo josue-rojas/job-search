@@ -19,7 +19,7 @@ interface GetJobsResponse {
 }
 
 class JobService {
-  readonly apiUrl = 'http://localhost:3002';
+  readonly apiUrl = '';
 
   // TODO: add try catch for errors
   async getJobs(page: number = 1, pageSize: number = 10): Promise<GetJobsResponse> {
