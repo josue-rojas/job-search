@@ -29,6 +29,10 @@ Running scrape
 - implement `name` - a string name for the source
 - test using the `server/scrape.ts` 
 
+# Sources Implemtned
+- LinkedIn
+
+
 ## Notes
 Url Structure
 (Note: these arent all the query params that may exist it's just the ones that we have documented. They are subject to change by LinkedIn)
