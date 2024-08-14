@@ -55,7 +55,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
       `&f_TPR=${datePostedEncoded}`;
   }
 
-  getSourceName(): string {
+  get SourceName(): string {
     const keywordRegex = /keywords=([a-zA-Z%\d]+)/;
     return this.name + this.url.match(keywordRegex)?.[1] || 'unknown'
   }
@@ -151,7 +151,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
           title: l.title.trim(),
           company: l.company.trim(),
       })}) : [],
-      siteSource: this.getSourceName(),
+      siteSource: this.SourceName,
     }
   }
 }

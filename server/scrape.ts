@@ -7,7 +7,7 @@ async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions)
   try {
     
     const source = SourceFactory.createSource(sourceType, sourceOptions);
-    const sourceName = source.getSourceName();
+    const sourceName = source.SourceName;
   
     console.log(new Date().toLocaleDateString(), `Source: ${sourceName}`);
   
