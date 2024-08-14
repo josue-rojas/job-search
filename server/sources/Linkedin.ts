@@ -11,6 +11,26 @@ interface LinkedInDataType {
   company: string;
 }
 
+interface LinkedInOptions {
+  keyword: string;
+  location: string;
+  geoId: string;
+  experienceLevels: string[];
+  datePosted?: number;
+}
+
+export function isLinkedInOptions(obj: any): obj is LinkedInOptions {
+  return typeof obj === 'object' &&
+    obj !== null &&
+    typeof obj.keyword === 'string' &&
+    typeof obj.location === 'string' &&
+    typeof obj.geoId === 'string' &&
+    Array.isArray(obj.experienceLevels) &&
+    obj.experienceLevels.every((level: unknown) => typeof level === 'string') &&
+    (obj.datePosted === undefined || typeof obj.datePosted === 'number');
+
+}
+
 export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   readonly clickDelay = 2000;
   name = 'LinkedIn';
@@ -20,12 +40,19 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   // url = 'https://www.linkedin.com/jobs/search?keywords=JavaScript&location=New%20York&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&position=1&pageNum=0';
   url: string = '';
 
-  constructor(keyword: string, location: string) {
+  constructor({keyword, location, geoId, experienceLevels, datePosted}: LinkedInOptions) {
     super();
     const keywordEncoded = encodeURIComponent(keyword);
     const locationEncoded = encodeURIComponent(location);
+    const experienceEncoded = encodeURIComponent(experienceLevels.join(','));
+    const datePostedEncoded = `r${datePosted || 86400}`;
 
-    this.url = `https://www.linkedin.com/jobs/search?keywords=${keywordEncoded}&location=${locationEncoded}&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&position=1&pageNum=0`
+    this.url = 'https://www.linkedin.com/jobs/search?' +
+      `keywords=${keywordEncoded}` +
+      `&location=${locationEncoded}` +
+      `&geoId=${geoId}` +
+      `&f_E=${experienceEncoded}` +
+      `&f_TPR=${datePostedEncoded}`;
   }
 
   getSourceName(): string {
