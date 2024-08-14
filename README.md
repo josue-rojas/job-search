@@ -11,8 +11,8 @@ The idea is that some job boards (linkedin) are filled with "promoted" jobs when
 # Getting Started
 - Clone this repo
 - Run `npm install`
-- .... Run `npm run dev` runs the script as is
-- jobs might not show up (working on adding a front end piece) but you can view them on sqlite using the queries from `Queries.md`
+- Run `npm run start` runs the server and ui
+
 
 Running scrape
 - on `server/scrape.ts` the bottom function runs the different scrapes
