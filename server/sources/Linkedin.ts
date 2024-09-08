@@ -3,7 +3,6 @@ const fs = require('fs');
 import { PuppeteerFetch } from "../utils/puppeteerFetch";
 
 
-
 interface LinkedInDataType {
   link: string;
   title: string;
@@ -11,24 +10,12 @@ interface LinkedInDataType {
   company: string;
 }
 
-interface LinkedInOptions {
+export interface LinkedInOptions {
   keyword: string;
   location: string;
   geoId: string;
   experienceLevels: string[];
   datePosted?: number;
-}
-
-export function isLinkedInOptions(obj: any): obj is LinkedInOptions {
-  return typeof obj === 'object' &&
-    obj !== null &&
-    typeof obj.keyword === 'string' &&
-    typeof obj.location === 'string' &&
-    typeof obj.geoId === 'string' &&
-    Array.isArray(obj.experienceLevels) &&
-    obj.experienceLevels.every((level: unknown) => typeof level === 'string') &&
-    (obj.datePosted === undefined || typeof obj.datePosted === 'number');
-
 }
 
 export class LinkedIn extends SourceBase<LinkedInDataType[]> {
@@ -77,8 +64,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     }
 
     // for debugging purposes we save the html
-    const html = await puppeteerFetch.content();
-    fs.writeFileSync('./page.html', html);
+    await puppeteerFetch.saveHTML(this.SourceName);
     
     const extractedData = await puppeteerFetch.page?.$$eval('.jobs-search__results-list li .base-card', (elements) => {
       return elements.map((el) => {
@@ -150,8 +136,21 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
           description: '',
           title: l.title.trim(),
           company: l.company.trim(),
+          updatedDate: l.datePosted,
+          hide: false,
       })}) : [],
       siteSource: this.SourceName,
     }
+  }
+
+  static isType<Generic>(obj: any): obj is Generic {
+    return typeof obj === 'object' &&
+    obj !== null &&
+    typeof obj.keyword === 'string' &&
+    typeof obj.location === 'string' &&
+    typeof obj.geoId === 'string' &&
+    Array.isArray(obj.experienceLevels) &&
+    obj.experienceLevels.every((level: unknown) => typeof level === 'string') &&
+    (obj.datePosted === undefined || typeof obj.datePosted === 'number');
   }
 }

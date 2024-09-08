@@ -18,6 +18,13 @@ interface GetJobsResponse {
   pageSize: number;
 }
 
+interface GetFilterResponse {
+  success: boolean;
+  data: {
+    siteSource: string[];
+  }
+}
+
 class JobService {
   readonly apiUrl = '';
 
@@ -27,6 +34,13 @@ class JobService {
     const data = await fetchResponse.json();
 
     return data as GetJobsResponse;
+  }
+
+  async getFilters() {
+    const fetchResponse = await fetch(this.apiUrl + '/api/getFilters');
+    const data = await fetchResponse.json();
+
+    return data as GetFilterResponse;
   }
 }
 

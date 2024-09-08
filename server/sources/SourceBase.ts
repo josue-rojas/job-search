@@ -6,6 +6,8 @@ export interface JobInterface {
   description: string;
   title: string;
   company: string;
+  hide: boolean;
+  updatedDate: string;
 }
 export interface SourceData {
   data: JobInterface[];
@@ -23,4 +25,9 @@ export abstract class SourceBase<FetchData = unknown> {
       console.log(this.name, ...arg)
     }
   }
+
+  static isType<ObjectType>(obj: any): obj is ObjectType {
+    throw new Error('Method not implemented. Use derived class');
+  }
+
 }

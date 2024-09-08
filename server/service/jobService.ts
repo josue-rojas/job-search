@@ -9,4 +9,13 @@ export class JobService {
   async getJobs(limit: number, offset: number) {
     return await this.jobRepo.getJobs(limit, offset);
   }
+
+  // get all filter types
+  async getFilters() {
+    const siteSources = await this.jobRepo.getUniqueSiteSources();
+
+    return {
+      siteSources,
+    }
+  }
 }

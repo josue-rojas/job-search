@@ -9,7 +9,8 @@
     "start:dev": "node -r ts-node/register  server/index.ts",
     "start:client": "react-scripts start",
     "start:server": "ts-node server/index.ts",
-    "start": "concurrently --kill-others-on-fail \"npm run start:server\" \"npm run start:client\""
+    "start": "concurrently --kill-others-on-fail \"npm run start:server\" \"npm run start:client\"",
+    "clearHTML": "rm -rf ./scrape/*"
   },
   "author": "",
   "license": "ISC",

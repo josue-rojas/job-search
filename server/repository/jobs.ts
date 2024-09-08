@@ -116,7 +116,28 @@ export class JobsRepository {
 
   
     })
+  }
 
+  async getUniqueSiteSources(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const db = this.getDB();
+      const query = `
+        SELECT DISTINCT siteSource
+        FROM jobs;
+      `;
+
+      db.all(query, [], (err, rows) => {
+        db.close();
+
+        if (err) {
+          return reject(err);
+        } else {
+          const siteSources = (rows as {siteSource: string}[]).map(row => row.siteSource as string);
+
+          return resolve(siteSources);
+        }
+      });
+    });
   }
 }
 

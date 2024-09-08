@@ -30,9 +30,24 @@ app.get('/api/getJobs', async (req, res) => {
   } catch (e) {
     console.error(e);
 
-    return res.status(500).json({e})
+    return res.status(500).json({ e })
   }
 });
+
+app.get('/api/getFilters', async (_req, res) => {
+  try {
+    const filters = await jobService.getFilters();
+
+    return res.status(200).json({
+      success: true,
+      data: filters,
+    })
+  } catch (e) {
+    console.error(e);
+
+    return res.status(500).json({ e });
+  }
+})
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

@@ -25,13 +25,15 @@ async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions)
         console.error(err);
       }
     }
+
+    console.log('latestDate', mappedData.data)
   
-    const newData = await jobRepo.getLatestJobs(latestDateJobFound);
+    // const newData = await jobRepo.getLatestJobs(latestDateJobFound);
   
-    console.log('Last Job Time:', latestDateJobFound);
-    console.log(newData.map((n) => [n.title, n.company, n.link, n.datePosted] ));
+    // console.log('Last Job Time:', latestDateJobFound);
+    // console.log(newData.map((n) => [n.title, n.company, n.link, n.datePosted] ));
   
-    return newData;
+    return mappedData;
   } catch (e) {
     console.error('ERROR', e, sourceType, sourceOptions);
   }
@@ -40,7 +42,7 @@ async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions)
 (async () => {
   const defaultTypes = {
     location: 'New York',
-    geoId: '102490898',
+    geoId: '102571732',
     experienceLevels: ['2', '3', '4'],
     datePosted: 86400,
 

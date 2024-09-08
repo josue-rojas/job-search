@@ -1,4 +1,4 @@
-import { isLinkedInOptions, LinkedIn } from "./Linkedin";
+import { LinkedIn, LinkedInOptions } from "./Linkedin";
 import { SourceBase } from "./SourceBase";
 
 export enum SourceType {
@@ -20,7 +20,7 @@ export class SourceFactory {
   static createSource(type: SourceType, options?: SourceFactoryOptions): SourceBase {
     switch (type) {
       case SourceType.LinkedIn:
-        if (isLinkedInOptions(options)) {
+        if (LinkedIn.isType<LinkedInOptions>(options)) {
           return new LinkedIn({ ...options });
         } else {
           throw new Error(`Invalid options for ${type}`);

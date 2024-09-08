@@ -1,5 +1,6 @@
 import puppeteer, { Browser, Page } from "puppeteer";
 import { setTimeout } from "node:timers/promises";
+const fs = require('fs');
 import { VERBOSE } from "../constants/config";
 
 export class PuppeteerFetch {
@@ -85,6 +86,13 @@ export class PuppeteerFetch {
       await setTimeout(scrollDelay || this.defaultScrollDelay); 
       currentHeight = await this.page.evaluate('document.body.scrollHeight') as number;
     } while (currentHeight > previousHeight);
+  }
+
+  async saveHTML(name?: string) {
+    if (!this.page) throw new Error('page not found');
+
+    const html = await this.page.content();
+    fs.writeFileSync(`./scrape/${Date.now()}-${name || 'unknown'}.html`, html);
   }
 
   async close() {
