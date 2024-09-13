@@ -2,6 +2,7 @@ import express from 'express';
 import { JobsRepository } from './repository/jobs';
 import { JobService } from './service/jobService';
 import cors from 'cors';
+import { scrapeOrchestrator } from './scrape';
 
 const app = express();
 // TODO: this should be an env variable
@@ -41,14 +42,25 @@ app.get('/api/getFilters', async (_req, res) => {
     return res.status(200).json({
       success: true,
       data: filters,
-    })
+    });
   } catch (e) {
     console.error(e);
 
     return res.status(500).json({ e });
   }
+});
+
+// endpoint to force all scrapes
+app.get('/api/scrape', async (_req, res) => {
+  scrapeOrchestrator(); // no await to just let it run
+  return res.status(200).json({ success: true });
 })
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
+
+setInterval(async () => {
+  console.log('running scrape');
+  await scrapeOrchestrator();
+}, 1800000)

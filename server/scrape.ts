@@ -3,13 +3,13 @@ import { SourceFactory, SourceType, SourceFactoryOptions } from "./sources/Sourc
 
 const jobRepo = new JobsRepository();
 
-async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions) {
+async function scrape(sourceType: SourceType, sourceOptions: SourceFactoryOptions) {
   try {
     
     const source = SourceFactory.createSource(sourceType, sourceOptions);
     const sourceName = source.SourceName;
   
-    console.log(new Date().toLocaleDateString(), `Source: ${sourceName}`);
+    console.log(new Date().toISOString(), `Source: ${sourceName}`);
   
     const fetchData = await source.fetch();
     const mappedData = source.mapData(fetchData);
@@ -39,7 +39,8 @@ async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions)
   }
 }
 
-(async () => {
+export async function scrapeOrchestrator() {
+  // TODO: get sources from db
   const defaultTypes = {
     location: 'New York',
     geoId: '102571732',
@@ -47,7 +48,7 @@ async function main(sourceType: SourceType, sourceOptions: SourceFactoryOptions)
     datePosted: 86400,
 
   }
-  await main(SourceType.LinkedIn, { ...defaultTypes, keyword: 'TypeScript' });
-  await main(SourceType.LinkedIn, { ...defaultTypes, keyword: 'JavaScript'});
-  await main(SourceType.LinkedIn, { ...defaultTypes, keyword: 'software engineer' });
-})();
+  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'TypeScript' });
+  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'JavaScript'});
+  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'software engineer' });
+}

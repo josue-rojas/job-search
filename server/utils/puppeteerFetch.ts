@@ -14,49 +14,55 @@ export class PuppeteerFetch {
   page: Page | undefined;
 
   async goto(url: string) {
-    const browser = await this.getBrowser();
-    this.page = await browser.newPage();
-
-    let responseStatus: number = 0;
-    this.page.on('response', response => {
-      const responseUrl = response.url();
-
-      if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
-        // console.log('responding-', responseUrl, response.status())
+    try {
+      const browser = await this.getBrowser();
+      this.page = await browser.newPage();
+  
+      let responseStatus: number = 0;
+      this.page.on('response', response => {
+        const responseUrl = response.url();
+  
+        if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
+          // console.log('responding-', responseUrl, response.status())
+        }
+  
+        if (responseUrl === url) {
+          responseStatus = response.status();
+        }
+      })
+  
+      this.page.on('request', (r) => {
+        const responseUrl = r.url();
+        // TODO: make these logs more configurable 
+        if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
+          // console.log('request-', responseUrl);
+        }
+      });
+  
+      this.logBrowser && this.page
+      .on('console', message =>
+        console.log(`${message.type()} ${message.text()}`))
+  
+      let tryNum = 0;
+      // this is where we fetch and retry if it fails to fetch
+      while (tryNum < this.retry_attempts && responseStatus != 200) {
+        console.log('fetch attempt -', tryNum)
+        await this.page.goto(url);
+        tryNum++;
+        await setTimeout(this.retry_delay);
       }
-
-      if (responseUrl === url) {
-        responseStatus = response.status();
+  
+      if (responseStatus !== 200) {
+        await browser.close();
+        throw new Error(`Failed to load page, status code: ${responseStatus}`)
       }
-    })
+  
+      return this;
+    } catch (e) {
+      await this.close();
 
-    this.page.on('request', (r) => {
-      const responseUrl = r.url();
-      // TODO: make these logs more configurable 
-      if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
-        // console.log('request-', responseUrl);
-      }
-    });
-
-    this.logBrowser && this.page
-    .on('console', message =>
-      console.log(`${message.type()} ${message.text()}`))
-
-    let tryNum = 0;
-    // this is where we fetch and retry if it fails to fetch
-    while (tryNum < this.retry_attempts && responseStatus != 200) {
-      console.log('fetch attempt -', tryNum)
-      await this.page.goto(url);
-      tryNum++;
-      await setTimeout(this.retry_delay);
+      throw e;
     }
-
-    if (responseStatus !== 200) {
-      await browser.close();
-      throw new Error(`Failed to load page, status code: ${responseStatus}`)
-    }
-
-    return this;
   }
 
   private async getBrowser() {
@@ -70,22 +76,32 @@ export class PuppeteerFetch {
   // repetetive
   // maybe this shoulld be write content to file
   async content() {
-    return await this.page?.content();
+    try {
+      return await this.page?.content();
+    } catch (e) {
+      this.close();
+      throw e;
+    }
   }
 
   async scrollToBottom(scrollDelay?: number) {
-    if (!this.page) throw new Error('page not found');
-
-    let previousHeight;
-    let currentHeight = await this.page.evaluate('document.body.scrollHeight') as number;
-
-    do {
-      console.log('scroll', previousHeight)
-      previousHeight = currentHeight;
-      await this.page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
-      await setTimeout(scrollDelay || this.defaultScrollDelay); 
-      currentHeight = await this.page.evaluate('document.body.scrollHeight') as number;
-    } while (currentHeight > previousHeight);
+    try {
+      if (!this.page) throw new Error('page not found');
+  
+      let previousHeight;
+      let currentHeight = await this.page.evaluate('document.body.scrollHeight') as number;
+  
+      do {
+        console.log('scroll', previousHeight)
+        previousHeight = currentHeight;
+        await this.page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+        await setTimeout(scrollDelay || this.defaultScrollDelay); 
+        currentHeight = await this.page.evaluate('document.body.scrollHeight') as number;
+      } while (currentHeight > previousHeight);
+    } catch (e) {
+      this.close();
+      throw e;
+    }
   }
 
   async saveHTML(name?: string) {

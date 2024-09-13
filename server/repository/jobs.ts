@@ -8,7 +8,7 @@ type JobRow = {
 } & JobInterface;
 
 export class JobsRepository {
-  readonly dbPath = path.join(__dirname, '../jobs.db');
+  readonly dbPath = path.join(__dirname, '../db/jobs.db');
 
   private getDB() {
     return new (sqlite3.verbose()).Database(this.dbPath, (err) => {
