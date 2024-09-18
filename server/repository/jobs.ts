@@ -41,31 +41,51 @@ export class JobsRepository {
     })
   }
 
-  async getJobs(limit: number, offset: number) {
+  async getJobs(limit: number, offset: number, hideFilter: boolean | null, sourceTypes: string[] | null) {
+    const sourceTypeFilter = sourceTypes && sourceTypes.length > 0 ? sourceTypes : null;
+  
     const query = `
-      SELECT * FROM jobs
-      WHERE hide IS NOT TRUE
+      SELECT * 
+      FROM jobs
+      WHERE (
+        CASE
+          WHEN ? = true THEN hide = 1
+          ELSE (hide IS NULL OR hide = 0)
+        END
+      )
+      AND (${sourceTypeFilter ? `sourceType IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'})
       ORDER BY datePosted DESC
       LIMIT ? OFFSET ?;
     `;
-    const countQuery = `SELECT COUNT(*) as count FROM jobs;`;
-
+    const params = [hideFilter, ...(sourceTypeFilter || []), limit, offset];
+    const countQuery = `
+      SELECT COUNT(*) as count 
+      FROM jobs
+      WHERE (
+        CASE
+          WHEN ? = true THEN hide = 1
+          ELSE (hide IS NULL OR hide = 0)
+        END
+      )
+      AND (${sourceTypeFilter ? `sourceType IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'});
+    `;
+  
     return new Promise((resolve, reject) => {
       const db = this.getDB();
-      db.get(countQuery, [], (err, countResult) => {
+      db.get(countQuery, [hideFilter, ...(sourceTypeFilter || [])], (err, countResult) => {
         if (err) {
           return reject(err);
         }
-    
-        db.all(query, [limit, offset], (err, rows) => {
+
+        db.all(query, params, (err, rows) => {
+          db.close();
+
           if (err) {
             return reject(err);
           }
 
           const count = (countResult as any)['count'] || 0;
-
-          return resolve({ rows, count })
-    
+          return resolve({ rows, count });
         });
       });
     });

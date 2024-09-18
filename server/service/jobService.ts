@@ -6,8 +6,8 @@ export class JobService {
   constructor(jobRepo: JobsRepository) {
     this.jobRepo = jobRepo;
   }
-  async getJobs(limit: number, offset: number) {
-    return await this.jobRepo.getJobs(limit, offset);
+  async getJobs(limit: number, offset: number, hideFilter: boolean | null, sourceTypes: string[] | null) {
+    return await this.jobRepo.getJobs(limit, offset, hideFilter, sourceTypes);
   }
 
   // get all filter types
@@ -16,6 +16,7 @@ export class JobService {
 
     return {
       siteSources,
+      hide: ['true', 'false'],
     }
   }
 
