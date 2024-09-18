@@ -75,13 +75,12 @@ export class JobsRepository {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
   
-      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource, hide) VALUES (?, ?, ?, ?, ?, ?)');
+      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource, hide) VALUES (?, ?, ?, ?, ?, ?, False)');
 
       insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, siteSource, false, (err: unknown) => {
         if (err) {
           reject(err);
         } else {
-          // console.log('inserted', job);
           resolve();
         }
       });
