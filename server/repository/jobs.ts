@@ -44,6 +44,7 @@ export class JobsRepository {
   async getJobs(limit: number, offset: number) {
     const query = `
       SELECT * FROM jobs
+      WHERE hide IS NOT TRUE
       ORDER BY datePosted DESC
       LIMIT ? OFFSET ?;
     `;
@@ -74,9 +75,9 @@ export class JobsRepository {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
   
-      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource) VALUES (?, ?, ?, ?, ?, ?)');
+      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource, hide) VALUES (?, ?, ?, ?, ?, ?)');
 
-      insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, siteSource, (err: unknown) => {
+      insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, siteSource, false, (err: unknown) => {
         if (err) {
           reject(err);
         } else {
@@ -135,6 +136,32 @@ export class JobsRepository {
           const siteSources = (rows as {siteSource: string}[]).map(row => row.siteSource as string);
 
           return resolve(siteSources);
+        }
+      });
+    });
+  }
+
+  async toggleHide(jobId: number, hideValue: boolean | null = null): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const db = this.getDB();
+
+      // If a value is passed in, use it; otherwise, toggle the existing value
+      const query = `
+        UPDATE jobs
+        SET hide = CASE
+          WHEN ? IS NULL THEN TRUE
+          ELSE ?
+        END
+        WHERE id = ?;
+      `;
+      
+      db.run(query, [hideValue, hideValue, jobId], function (err) {
+        db.close();
+        
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve();
         }
       });
     });

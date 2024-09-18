@@ -18,4 +18,8 @@ export class JobService {
       siteSources,
     }
   }
+
+  async toggleHide(jobId: number, hideValue: boolean | null = null) {
+    await this.jobRepo.toggleHide(jobId, hideValue);
+  }
 }

@@ -12,6 +12,8 @@ const jobRepo = new JobsRepository();
 const jobService = new JobService(jobRepo);
 
 app.use(cors());
+app.use(express.json());
+
 
 // API endpoint to query the database with pagination
 app.get('/api/getJobs', async (req, res) => {
@@ -47,6 +49,24 @@ app.get('/api/getFilters', async (_req, res) => {
     console.error(e);
 
     return res.status(500).json({ e });
+  }
+});
+
+app.post('/api/toggleHide', async (req, res) => {
+  const { jobId, hide } = req.body || {};
+
+  if (!jobId) {
+    return res.status(400).json({ success: false, message: 'jobId is required' });
+  }
+
+  try {
+    await jobService.toggleHide(jobId, hide !== undefined ? hide : null);
+
+    return res.status(200).json({ success: true, message: `Job ${jobId} hide status updated` });
+  } catch (e) {
+    console.error(e);
+
+    return res.status(500).json({ success: false, message: 'An error occurred', error: e });
   }
 });
 

@@ -1,16 +1,24 @@
-.jobBox {
-  display: block;
+.jobBoxContainer {
+  position: relative;
   padding: 16px;
   margin: 8px 0;
   background-color: #ffffff;
-  color: #000000;
-  text-decoration: none;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
 }
 
+.jobBox {
+  background-color: #ffffff;
+  border-radius: 8px;
+  color: #000000;
+  display: block;
+  padding-right: 40px; 
+  text-decoration: none;
+  transition: background-color 0.3s ease; 
+}
+
 .jobBox:visited {
-  background-color: #f0f0f0; 
+  background-color: #f0f0f0;
 }
 
 .header {
@@ -40,4 +48,36 @@
   font-size: 12px;
   color: #666666;
   margin-top: 8px;
+}
+
+.removeButton {
+  align-items: center;
+  background-color: #ff4d4d;
+  border-radius: 50%;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  height: 24px;
+  justify-content: center;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  width: 24px;
+}
+
+.removeButton:hover {
+  background-color: #ff1a1a;
+}
+
+.jobBox:visited .removeButton {
+  background-color: #cccccc; 
+  color: #000000; 
+}
+
+.removeButton:disabled {
+  background-color: #cccccc; 
+  cursor: not-allowed;
 }

@@ -58,11 +58,18 @@ export function HomeView() {
       {jobListings.map((job) => (
         <JobBox
           key={job.id}
+          jobId={job.id}
           siteSource={job.siteSource}
           datePosted={job.datePosted}
           company={job.company}
           title={job.title}
           link={job.link}
+          onRemove={jobService.toggleHide}
+          onRemoveSuccess={() => {
+            setJobListings(jobListings.filter((j) => {
+              return j.id != job.id;
+            }));
+          }}
         />
       ))}
       {loading && <div>Loading...</div>}
