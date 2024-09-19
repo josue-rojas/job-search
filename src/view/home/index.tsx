@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { JobInterface, jobService } from "../../service/jobService";
 import { JobBox } from "../../components/jobBox";
+import { NavBar } from "../../components/NavBar";
 import styles from './styles.module.css';
 
 export function HomeView() {
@@ -17,20 +18,17 @@ export function HomeView() {
 
     try {
       const data = await jobService.getJobs(page, 20, selectedSourceType);
-      console.log('Successfully fetched data', { page });
       const { data: { rows } } = data;
 
       setJobListings((prevListings) => {
         const combinedListings = [...prevListings, ...rows];
-
-        // Remove duplicates
         const uniqueListings = Array.from(new Set(combinedListings.map(job => job.id)))
           .map(id => combinedListings.find(job => job.id === id) as JobInterface);
 
         return uniqueListings;
       });
 
-      setHasMore(rows.length > 0); // Check if more jobs are available
+      setHasMore(rows.length > 0);
     } catch (e) {
       console.error(e);
     } finally {
@@ -38,12 +36,10 @@ export function HomeView() {
     }
   }, [selectedSourceType]);
 
-  // Fetch jobs on page change or filter change
   useEffect(() => {
     loadJobs(page, filters);
   }, [page, filters, loadJobs]);
 
-  // Fetch filters on initial load
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -56,13 +52,12 @@ export function HomeView() {
     loadFilters();
   }, []);
 
-  // Handle filter changes
   const handleSourceTypeChange = (sourceType: string) => {
-    setSelectedSourceType((prev) => 
+    setSelectedSourceType((prev) =>
       prev.includes(sourceType) ? prev.filter((type) => type !== sourceType) : [...prev, sourceType]
     );
     setPage(1);
-    setJobListings([]); 
+    setJobListings([]);
   };
 
   useEffect(() => {
@@ -77,39 +72,32 @@ export function HomeView() {
   }, [loading, hasMore]);
 
   return (
-    <div className={styles.home}>
-      <div className={styles.filters}>
-        <label>Filter by Site Source:</label>
-        {filters.siteSources.map((source) => (
-          <div key={source}>
-            <input 
-              type="checkbox" 
-              id={source} 
-              checked={selectedSourceType.includes(source)}
-              onChange={() => handleSourceTypeChange(source)} 
-            />
-            <label htmlFor={source}>{source}</label>
-          </div>
+    <div className={styles.homeView}>
+      <NavBar 
+        filters={filters} 
+        selectedSourceType={selectedSourceType} 
+        onFilterChange={handleSourceTypeChange} 
+      />
+
+      <div className={styles.home}>
+        {jobListings.map((job) => (
+          <JobBox
+            key={job.id}
+            jobId={job.id}
+            siteSource={job.siteSource}
+            datePosted={job.datePosted}
+            company={job.company}
+            title={job.title}
+            link={job.link}
+            onRemove={jobService.toggleHide}
+            onRemoveSuccess={() => {
+              setJobListings(jobListings.filter((j) => j.id !== job.id));
+            }}
+          />
         ))}
+
+        {loading && <div>Loading...</div>}
       </div>
-
-      {jobListings.map((job) => (
-        <JobBox
-          key={job.id}
-          jobId={job.id}
-          siteSource={job.siteSource}
-          datePosted={job.datePosted}
-          company={job.company}
-          title={job.title}
-          link={job.link}
-          onRemove={jobService.toggleHide}
-          onRemoveSuccess={() => {
-            setJobListings(jobListings.filter((j) => j.id !== job.id));
-          }}
-        />
-      ))}
-
-      {loading && <div>Loading...</div>}
     </div>
   );
 }
