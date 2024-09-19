@@ -21,7 +21,8 @@ interface GetJobsResponse {
 interface GetFilterResponse {
   success: boolean;
   data: {
-    siteSource: string[];
+    siteSources: string[];
+    hide: string[];
   }
 }
 
@@ -39,13 +40,13 @@ class JobService {
   }
 
   // TODO: add try catch for errors
-  async getJobs(page: number = 1, pageSize: number = 20): Promise<GetJobsResponse> {
-    const fetchResponse = await fetch(this.apiUrl + `/api/getJobs?page=${page}&pageSize=${pageSize}`);
+  async getJobs(page: number = 1, pageSize: number = 20, sourceTypes: string[] = []): Promise<GetJobsResponse> {
+    const sourceTypeQuery = sourceTypes.length > 0 ? `&sourceTypes=${sourceTypes.join(',')}` : '';
+    const fetchResponse = await fetch(`${this.apiUrl}/api/getJobs?page=${page}&pageSize=${pageSize}${sourceTypeQuery}`);
     const data = await fetchResponse.json();
 
     return data as GetJobsResponse;
   }
-
   async getFilters() {
     const fetchResponse = await fetch(this.apiUrl + '/api/getFilters');
     const data = await fetchResponse.json();

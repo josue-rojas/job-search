@@ -21,10 +21,10 @@ app.get('/api/getJobs', async (req, res) => {
   const pageSize = parseInt(req.query?.pageSize as string) || 10;
   const offset: number = (page - 1) * pageSize;
 
-  const hideFilter = req.query.hide === 'true' ? true : (req.query.hide === 'false' ? false : null);
+  const hideFilter: boolean | null = req.query.hide === 'true' ? true : (req.query.hide === 'false' ? false : null);
   
   // Split the sourceType string into an array if provided
-  const sourceTypes = req.query.sourceType ? (req.query.sourceType as string).split(',') : null;
+  const sourceTypes = req.query.sourceTypes ? (req.query.sourceTypes as string).split(',').map(s => encodeURIComponent(s)) : null;
 
   try {
     const jobs = await jobService.getJobs(pageSize, offset, hideFilter, sourceTypes);

@@ -53,7 +53,7 @@ export class JobsRepository {
           ELSE (hide IS NULL OR hide = 0)
         END
       )
-      AND (${sourceTypeFilter ? `sourceType IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'})
+      AND (${sourceTypeFilter ? `siteSource IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'})
       ORDER BY datePosted DESC
       LIMIT ? OFFSET ?;
     `;
@@ -67,7 +67,7 @@ export class JobsRepository {
           ELSE (hide IS NULL OR hide = 0)
         END
       )
-      AND (${sourceTypeFilter ? `sourceType IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'});
+      AND (${sourceTypeFilter ? `siteSource IN (${sourceTypeFilter.map(() => '?').join(',')})` : '1=1'});
     `;
   
     return new Promise((resolve, reject) => {
@@ -95,7 +95,7 @@ export class JobsRepository {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
   
-      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource, hide) VALUES (?, ?, ?, ?, ?, ?, False)');
+      const insertStmt = db.prepare('INSERT OR IGNORE INTO jobs (link, datePosted, title, description, company, siteSource, hide) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
       insertStmt.run(job.link, job.datePosted || new Date().toDateString(), job.title, job.description, job.company, siteSource, false, (err: unknown) => {
         if (err) {

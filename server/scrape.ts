@@ -26,12 +26,13 @@ async function scrape(sourceType: SourceType, sourceOptions: SourceFactoryOption
       }
     }
 
-    console.log('latestDate', mappedData.data)
+    // console.log('latestDate', mappedData.data)
   
     // const newData = await jobRepo.getLatestJobs(latestDateJobFound);
   
     // console.log('Last Job Time:', latestDateJobFound);
     // console.log(newData.map((n) => [n.title, n.company, n.link, n.datePosted] ));
+    console.log('Done Scraping', sourceName, sourceOptions)
   
     return mappedData;
   } catch (e) {

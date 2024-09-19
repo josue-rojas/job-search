@@ -26,6 +26,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   // url = 'https://www.linkedin.com/jobs/search?keywords=Typescript&location=New%20York&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&original_referer=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fsearch%3Fkeywords%3DTypescript%26location%3DNew%2520York%26geoId%3D105080838%26f_TPR%3D%26f_E%3D2%252C3%252C4%26position%3D1%26pageNum%3D0&position=1&pageNum=0'
   // url = 'https://www.linkedin.com/jobs/search?keywords=JavaScript&location=New%20York&geoId=105080838&f_E=2%2C3%2C4&f_TPR=r86400&position=1&pageNum=0';
   url: string = '';
+  maxScrollCount = 100;
 
   constructor({keyword, location, geoId, experienceLevels, datePosted}: LinkedInOptions) {
     super();
@@ -58,15 +59,17 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     const showMoreButtonSelector = 'button.infinite-scroller__show-more-button.infinite-scroller__show-more-button--visible';
 
     let buttonExists = true;
-    while (buttonExists) {
+    let count = 0;
+    while (buttonExists && count < this.maxScrollCount) {
       await puppeteerFetch.scrollToBottom();
       buttonExists = await puppeteerFetch.clickShowMoreButton(showMoreButtonSelector);
+      count++;
     }
 
     // for debugging purposes we save the html
     await puppeteerFetch.saveHTML(this.SourceName);
     
-    const extractedData = await puppeteerFetch.page?.$$eval('.jobs-search__results-list li .base-card', (elements) => {
+    const extractedData = await puppeteerFetch.page?.$$eval('.jobs-search__results-list li div.base-card', (elements) => {
       return elements.map((el) => {
         const link = (el.querySelector('.base-card__full-link') as any )?.['href'] as string;
 
@@ -115,27 +118,28 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   }
 
   mapData(data: LinkedInDataType[]) {
-    // console.log(data)
+    const filteredData = data.filter(d => {
+      const hasData = !!d.company && !!d.datePosted && !!d.link && !!d.title;
+      
+      if (!hasData) {
+        console.log('error in data', this.SourceName, d);
+      }
+
+      return !!d.company && !!d.datePosted && !!d.link && !!d.title;
+    });
+
     return { 
-      // data: [{
-      //   link: 'unkonwn',
-      //   datePosted: new Date().toISOString(),
-      //   description: '',
-      //   title: '',
-      //   company: '',
-      // }],
-      data: data ? data.map(l => {
+      data: filteredData ? filteredData.map(l => {
         const jobPath = l?.link?.split('?')[0].split('-');
-        // console.log(l.link, jobPath)
-        const jobId = jobPath[jobPath.length - 1];
-        // console.log('`https://www.linkedin.com/jobs/view/${jobId}`', `https://www.linkedin.com/jobs/view/${jobId}`)
+        const jobId = jobPath?.length ? jobPath[jobPath.length - 1] : 'error';
+        
         return ({
           link: `https://www.linkedin.com/jobs/view/${jobId}`,
           // link: l.link,
           datePosted: l.datePosted,
           description: '',
-          title: l.title.trim(),
-          company: l.company.trim(),
+          title: l.title?.trim() || 'Unknown',
+          company: l.company?.trim(),
           updatedDate: l.datePosted,
           hide: false,
       })}) : [],
