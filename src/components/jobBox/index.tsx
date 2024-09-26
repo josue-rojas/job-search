@@ -40,13 +40,14 @@ export function JobBox(props: JobBoxProps) {
         </div>
         <time className={styles.date}>{new Date(props.datePosted).toLocaleString()}</time>
       </a>
-      <button 
+      {/* TODO: not show for now since idk if it's a good use for this */}
+      {/* <button 
         className={styles.removeButton} 
         onClick={handleRemoveClick}
         disabled={removing}  // Disable the button while the request is processing
       >
         {removing ? 'Removing...' : 'X'}
-      </button>
+      </button> */}
     </div>
   );
 }
