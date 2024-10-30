@@ -1,8 +1,10 @@
 import { LinkedIn, LinkedInOptions } from "./Linkedin";
+import { LinkedInPost } from "./LinkedInPost";
 import { SourceBase } from "./SourceBase";
 
 export enum SourceType {
-  LinkedIn = 'LinkedIn'
+  LinkedIn = 'LinkedIn',
+  LinkedInPost = 'LinkedInPost',
 };
 
 
@@ -25,6 +27,9 @@ export class SourceFactory {
         } else {
           throw new Error(`Invalid options for ${type}`);
         }
+      case SourceType.LinkedInPost:
+        // TODO: options need to be passed down
+        return new LinkedInPost(options || {});
       default:
         throw new Error(`${type} - not yet implemented`);
     }

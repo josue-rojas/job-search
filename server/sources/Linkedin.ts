@@ -1,5 +1,4 @@
 import { SourceBase } from "./SourceBase";
-const fs = require('fs');
 import { PuppeteerFetch } from "../utils/puppeteerFetch";
 
 
