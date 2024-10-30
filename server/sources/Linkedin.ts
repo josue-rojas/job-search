@@ -48,7 +48,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
   }
 
   async fetch() {
-    console.log('Fetching from ', this.url);
+    console.log('Fetching for ', this.url);
     const puppeteerFetch = (await new PuppeteerFetch().goto(this.url));
 
     if (!puppeteerFetch.page) {
@@ -146,7 +146,7 @@ export class LinkedIn extends SourceBase<LinkedInDataType[]> {
     }
   }
 
-  static isType<Generic>(obj: any): obj is Generic {
+  static isType(obj: any): obj is LinkedInOptions {
     return typeof obj === 'object' &&
     obj !== null &&
     typeof obj.keyword === 'string' &&

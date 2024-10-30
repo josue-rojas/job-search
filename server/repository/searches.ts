@@ -6,7 +6,8 @@ import { VERBOSE } from '../constants/config';
 interface SearchesInterface {
   id: number;
   sourceType: string;
-  sourceOtions: string;
+  sourceOptions: string;
+  isDisabled: boolean; // todo: need to make sure this is a boolean in the db
 }
 
 export class SearchesRepository {
@@ -21,11 +22,31 @@ export class SearchesRepository {
     });
   }
 
-  async getAllSearchs(): Promise<SearchesInterface[]> {
+  async getAllSearches(): Promise<SearchesInterface[]> {
     return new Promise((resolve, reject) => {
       const db = this.getDB();
       const query = `
         SELECT * FROM searches;
+      `;
+  
+      db.all(query, (err, row) => {
+        db.close();
+
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(row as SearchesInterface[]);
+        }
+      });
+  
+    });
+  }
+
+  async getAllActiveSearches(): Promise<SearchesInterface[]> {
+    return new Promise((resolve, reject) => {
+      const db = this.getDB();
+      const query = `
+        SELECT * FROM searches WHERE isDisabled IS NOT 1;
       `;
   
       db.all(query, (err, row) => {

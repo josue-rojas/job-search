@@ -1,4 +1,5 @@
 import { JobsRepository } from "./repository/jobs";
+import { SearchesRepository } from "./repository/searches";
 import { SourceFactory, SourceType, SourceFactoryOptions } from "./sources/SourceFactory";
 
 const jobRepo = new JobsRepository();
@@ -10,7 +11,7 @@ async function scrape(sourceType: SourceType, sourceOptions: SourceFactoryOption
     const sourceName = source.SourceName;
   
     console.log(new Date().toISOString(), `Source: ${sourceName}`);
-  
+
     const fetchData = await source.fetch();
     const mappedData = source.mapData(fetchData);
   
@@ -41,15 +42,25 @@ async function scrape(sourceType: SourceType, sourceOptions: SourceFactoryOption
 }
 
 export async function scrapeOrchestrator() {
-  // TODO: get sources from db
-  const defaultTypes = {
-    location: 'New York',
-    geoId: '102571732',
-    experienceLevels: ['2', '3', '4'],
-    datePosted: 86400,
+  // const defaultTypes = {
+  //   location: 'New York',
+  //   geoId: '102571732',
+  //   experienceLevels: ['2', '3', '4'],
+  //   datePosted: 86400,
+  //   keyword: "TypeScript"
+  // }
+  // await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'TypeScript' });
+  // await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'JavaScript'});
+  // await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'software engineer' });
+  const searchRepo = new SearchesRepository();
+  const allSearches = await searchRepo.getAllActiveSearches();
+  // console.log('yerr', allSearches)
 
+  for (let search of allSearches) {
+    console.log("running scrape: ");
+    console.log(search.sourceType, search.sourceOptions);
+    const options = JSON.parse(search.sourceOptions);
+    await scrape(search.sourceType as SourceType, options);
   }
-  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'TypeScript' });
-  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'JavaScript'});
-  await scrape(SourceType.LinkedIn, { ...defaultTypes, keyword: 'software engineer' });
+
 }

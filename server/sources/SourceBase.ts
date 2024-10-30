@@ -14,6 +14,8 @@ export interface SourceData {
   siteSource: string;
 }
 
+type SourceOptions = any;
+
 export abstract class SourceBase<FetchData = unknown> {
   abstract name: string;
   abstract fetch(): Promise<FetchData>;
@@ -26,7 +28,7 @@ export abstract class SourceBase<FetchData = unknown> {
     }
   }
 
-  static isType<ObjectType>(obj: any): obj is ObjectType {
+  static isType(obj: any): obj is SourceOptions {
     throw new Error('Method not implemented. Use derived class');
   }
 

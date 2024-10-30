@@ -1,10 +1,12 @@
 import { LinkedIn, LinkedInOptions } from "./Linkedin";
 import { LinkedInPost } from "./LinkedInPost";
+import { Indeed, IndeedOptions } from "./Indeed";
 import { SourceBase } from "./SourceBase";
 
 export enum SourceType {
   LinkedIn = 'LinkedIn',
   LinkedInPost = 'LinkedInPost',
+  Indeed = 'Indeed',
 };
 
 
@@ -22,7 +24,7 @@ export class SourceFactory {
   static createSource(type: SourceType, options?: SourceFactoryOptions): SourceBase {
     switch (type) {
       case SourceType.LinkedIn:
-        if (LinkedIn.isType<LinkedInOptions>(options)) {
+        if (LinkedIn.isType(options)) {
           return new LinkedIn({ ...options });
         } else {
           throw new Error(`Invalid options for ${type}`);
@@ -30,6 +32,12 @@ export class SourceFactory {
       case SourceType.LinkedInPost:
         // TODO: options need to be passed down
         return new LinkedInPost(options || {});
+      case SourceType.Indeed:
+        if (Indeed.isType(options)) {
+          return new Indeed({ ...options });
+        } else {
+          throw new Error(`Invalid options for ${type}`);
+        }
       default:
         throw new Error(`${type} - not yet implemented`);
     }
