@@ -13,13 +13,36 @@ export class PuppeteerFetch {
   browser: Browser | undefined;
   page: Page | undefined;
 
-  async goto(url: string) {
-    try {
-      const browser = await this.getBrowser();
+  async getPage() {
+    const browser = await this.getBrowser();
+
+    if (!this.page) {
       this.page = await browser.newPage();
+    }
+
+    this.page.on('request', (r) => {
+      const responseUrl = r.url();
+      // TODO: make these logs more configurable 
+      if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
+        // console.log('request-', responseUrl);
+      }
+    });
+
+    this.logBrowser && this.page
+    .on('console', message =>
+      console.log(`${message.type()} ${message.text()}`))
+    
+    return this.page;
+  }
+
+  async goto(url: string, closeBrowser=true) {
+    try {
+      const page = await this.getPage();
   
       let responseStatus: number = 0;
-      this.page.on('response', response => {
+
+      // todo: this should go with the setup of the page. it would be repetive if we reuse this function. it might cause a bug.
+      page.on('response', response => {
         const responseUrl = response.url();
   
         if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
@@ -30,30 +53,19 @@ export class PuppeteerFetch {
           responseStatus = response.status();
         }
       })
-  
-      this.page.on('request', (r) => {
-        const responseUrl = r.url();
-        // TODO: make these logs more configurable 
-        if (!['https://www.linkedin.com/li/track'].includes(responseUrl)) {
-          // console.log('request-', responseUrl);
-        }
-      });
-  
-      this.logBrowser && this.page
-      .on('console', message =>
-        console.log(`${message.type()} ${message.text()}`))
-  
+
       let tryNum = 0;
       // this is where we fetch and retry if it fails to fetch
       while (tryNum < this.retry_attempts && responseStatus != 200) {
         console.log('fetch attempt -', tryNum)
-        await this.page.goto(url);
+        await page.goto(url);
         tryNum++;
         await setTimeout(this.retry_delay);
       }
   
-      if (responseStatus !== 200) {
-        await browser.close();
+      if (responseStatus !== 200 && closeBrowser) {
+        await this.close();
+
         throw new Error(`Failed to load page, status code: ${responseStatus}`)
       }
   

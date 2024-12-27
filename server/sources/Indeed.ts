@@ -1,3 +1,4 @@
+import { PuppeteerFetch } from "../utils/puppeteerFetch";
 import { JobInterface, SourceBase, SourceData } from "./SourceBase";
 
 export interface IndeedOptions {
@@ -40,7 +41,23 @@ export class Indeed extends SourceBase<IndeedDataType[]> {
   }
 
   async fetch() {
-    console.log('Fetching for', this.url);
+    // console.log('Fetching for', this.SourceName);
+    // console.log('url', this.url)
+    // const puppeteerFetch = (await new PuppeteerFetch().goto('https://indeed.com'));
+
+    // await puppeteerFetch.saveHTML(this.SourceName);
+
+    // const data = await puppeteerFetch.page?.evaluate(`
+    //   window.mosaic.providerData["mosaic-provider-jobcards"].metaData
+    // `);
+
+    // console.log('data', data)
+
+    // if (!puppeteerFetch.page) {
+    //   return [];
+    // }
+
+
     return [];
   }
 
